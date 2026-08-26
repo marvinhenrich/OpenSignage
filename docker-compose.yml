@@ -1,0 +1,151 @@
+# =============================================================================
+#  OpenSignage — kompletter Stapel
+# =============================================================================
+#
+#  Start:   docker compose up -d
+#  Aufruf:  https://<Adresse-des-Servers>
+#
+#  Mehr braucht es nicht. Keine .env bearbeiten, keine Geheimnisse ausdenken,
+#  kein Zertifikat besorgen:
+#
+#   * Der Dienst "init" erzeugt beim ALLERERSTEN Start eigene Zufallsgeheimnisse
+#     fuer diese Installation und legt sie im Datentraeger "secrets" ab. Es gibt
+#     also kein ausgeliefertes Standardkennwort.
+#   * Der Dienst "web" erzeugt beim ersten Start ein selbstsigniertes TLS-Zertifikat,
+#     falls keines vorliegt.
+#   * Datenbankmigrationen laufen beim Start des CMS automatisch, ebenso das Anlegen
+#     des ersten Administrators (Zugangsdaten stehen dann im Protokoll von "cms").
+#
+#  Anpassen laesst sich alles ueber eine optionale .env-Datei (siehe .env.example),
+#  noetig ist sie nicht.
+# =============================================================================
+
+name: opensignage
+
+services:
+  # --- Geheimnisse dieser Installation anlegen (laeuft einmal, dann fertig) ---
+  init:
+    image: alpine:3.20
+    volumes:
+      - secrets:/run/opensignage-secrets
+      - ./deploy/secrets-init.sh:/init.sh:ro
+    command: ["sh", "/init.sh"]
+    restart: "no"
+    networks: [internal]
+
+  # --- Datenbank ------------------------------------------------------------
+  db:
+    # Version bewusst festgenagelt: Postgres oeffnet ein Datenverzeichnis einer
+    # neueren Hauptversion nicht: ein Sprung will vorbereitet sein, nicht beilaeufig.
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-opensignage}
+      POSTGRES_DB: ${POSTGRES_DB:-opensignage}
+      # Kennwort ausschliesslich aus der Datei, die "init" angelegt hat - nie aus dem
+      # Compose-Text und nie aus der .env. Bewusst NUR dieser eine Weg: das Postgres-Image
+      # bricht ab, wenn POSTGRES_PASSWORD und POSTGRES_PASSWORD_FILE beide gesetzt sind.
+      # Eine bereits bestehende Datenbank uebernimmt man, indem man ihr Kennwort einmalig
+      # in diese Datei schreibt (siehe deploy/migrate-existing.sh).
+      POSTGRES_PASSWORD_FILE: /run/opensignage-secrets/db_password
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - secrets:/run/opensignage-secrets:ro
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-opensignage} -d ${POSTGRES_DB:-opensignage}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [internal]
+    # Bewusst KEIN Port nach aussen: die Datenbank ist nur im internen Netz erreichbar.
+
+  # --- CMS (Hono/Drizzle + WebSocket-Push) ----------------------------------
+  cms:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      MEDIA_DIR: /data/media
+      # Bausteine der Verbindungszeichenkette. Das Startskript setzt daraus
+      # DATABASE_URL zusammen, sofern nicht ohnehin eine vorgegeben ist.
+      DB_USER: ${POSTGRES_USER:-opensignage}
+      DB_NAME: ${POSTGRES_DB:-opensignage}
+      DB_HOST: db
+      DATABASE_URL: ${DATABASE_URL:-}
+      # Oeffentliche Adresse - steht in Einladungslinks und im Kiosk-Paket.
+      PUBLIC_URL: ${PUBLIC_URL:-https://localhost}
+      # Anzeigename der Anlage. Leer = "OpenSignage".
+      BRAND_NAME: ${BRAND_NAME:-}
+      # Technischer Kurzname fuer Pfade und Aufgabennamen auf den Windows-Geraeten.
+      # NACHTRAEGLICH AENDERN BRICHT BESTEHENDE GERAETE - siehe .env.example.
+      BRAND_SLUG: ${BRAND_SLUG:-}
+      # Hersteller/Kontakt fuer die dezente Signatur unter "Einstellungen".
+      # Leer = die Signatur erscheint gar nicht.
+      BRAND_VENDOR: ${BRAND_VENDOR:-}
+      BRAND_VENDOR_URL: ${BRAND_VENDOR_URL:-}
+      BRAND_VENDOR_EMAIL: ${BRAND_VENDOR_EMAIL:-}
+      # Erster Administrator. Leer = Benutzer "admin" mit erzeugtem Zufallskennwort,
+      # das einmalig im Protokoll steht.
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      # Optional: Anmeldung gegen Active Directory (leer = nur lokale Konten)
+      AD_DCS: ${AD_DCS:-}
+      AD_PORT: ${AD_PORT:-636}
+      AD_USE_SSL: ${AD_USE_SSL:-true}
+      AD_UPN_SUFFIX: ${AD_UPN_SUFFIX:-}
+      AD_TLS_REJECT_UNAUTHORIZED: ${AD_TLS_REJECT_UNAUTHORIZED:-false}
+      # Optional: Icinga-2-Statuskachel (leer = Kachel meldet "nicht eingerichtet")
+      ICINGA_URL: ${ICINGA_URL:-}
+      ICINGA_API_USER: ${ICINGA_API_USER:-}
+      ICINGA_API_PASSWORD: ${ICINGA_API_PASSWORD:-}
+      ICINGA_TLS_REJECT_UNAUTHORIZED: ${ICINGA_TLS_REJECT_UNAUTHORIZED:-false}
+    volumes:
+      - media_data:/data/media
+      - secrets:/run/opensignage-secrets:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [internal]
+    # Kein Port nach aussen: der Zugang laeuft ausschliesslich ueber "web" mit TLS.
+
+  # --- Oberflaeche + TLS-Eingang -------------------------------------------
+  web:
+    build:
+      context: ./admin
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    environment:
+      # Name im selbst erzeugten Zertifikat (nur wirksam, wenn keines vorliegt).
+      PUBLIC_HOSTNAME: ${PUBLIC_HOSTNAME:-opensignage.local}
+    volumes:
+      - ./deploy/public/nginx.conf:/etc/nginx/nginx.conf:ro
+      - certs:/etc/nginx/certs
+      - media_data:/data/media:ro
+      # Erzeugte Kiosk-Pakete, Treiber und das CMS-Zertifikat. Bewusst ein eigener
+      # Datentraeger und NICHT im Image: die Dateien entstehen im Betrieb (teils
+      # mehrere hundert MB) und muessen ein Update ueberleben. Die Anleitung im
+      # Programm verlinkt genau hierher.
+      - downloads:/usr/share/nginx/html/downloads
+    depends_on:
+      - cms
+    networks: [internal]
+
+volumes:
+  db_data:     # Datenbankinhalt
+  media_data:  # hochgeladene Bilder/Videos/PDFs
+  certs:       # TLS-Zertifikat (selbst erzeugt oder selbst hinterlegt)
+  downloads:   # erzeugte Kiosk-Pakete und Treiber (von der Anleitung verlinkt)
+  secrets:     # Geheimnisse dieser Installation - unbedingt mitsichern
+
+networks:
+  internal:
+    driver: bridge

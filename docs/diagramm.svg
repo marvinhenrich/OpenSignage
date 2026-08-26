@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 260" width="900" height="260" role="img" aria-labelledby="t d">
+  <title id="t">Weg einer Änderung</title>
+  <desc id="d">Eine Änderung im CMS erreicht die angeschlossenen Bildschirme über eine dauerhafte Verbindung in etwa einer Sekunde.</desc>
+  <style>
+    /* Nur das Schaubild — Titel und Untertitel stehen auf der Seite darueber
+       schon als Text. Ein Kopfbild, das sie wiederholt, sieht nach Fehler aus. */
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+    .sans { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .card { fill: #FFFFFF; } .line { stroke: #E6E2D8; }
+    .muted { fill: #6A6F79; } .teal { fill: #0F6E56; } .tealstroke { stroke: #0F6E56; }
+    @media (prefers-color-scheme: dark) {
+      .card { fill: #1C1E1B; } .line { stroke: #2E312C; }
+      .muted { fill: #8B8A80; } .teal { fill: #45C47C; } .tealstroke { stroke: #45C47C; }
+    }
+    @keyframes ankommen { 0%,28%{opacity:.12} 34%,56%{opacity:.30} 64%,100%{opacity:.12} }
+    .screen { opacity:.12; animation: ankommen 2.8s ease-in-out infinite; }
+    .s2 { animation-delay:.12s } .s3 { animation-delay:.24s }
+    @keyframes fliegen { 0%{offset-distance:0%;opacity:0} 8%{opacity:1}
+                         28%{offset-distance:100%;opacity:1} 34%,100%{offset-distance:100%;opacity:0} }
+    .pulse { opacity:0; animation: fliegen 2.8s cubic-bezier(.4,0,.2,1) infinite; }
+    .p1 { offset-path: path("M266 112 C 350 112, 370 50, 460 50"); }
+    .p2 { offset-path: path("M266 130 C 370 130, 380 130, 460 130"); animation-delay:.12s }
+    .p3 { offset-path: path("M266 148 C 350 148, 370 210, 460 210"); animation-delay:.24s }
+    @media (prefers-reduced-motion: reduce) { .screen, .pulse { animation: none; } }
+  </style>
+
+  <g transform="translate(220,130)">
+    <rect x="-46" y="-30" width="92" height="60" rx="12" class="card"/>
+    <rect x="-46" y="-30" width="92" height="60" rx="12" fill="none" class="line" stroke-width="1.5"/>
+    <text x="0" y="5" text-anchor="middle" class="mono teal" font-size="15" font-weight="600">CMS</text>
+  </g>
+  <text x="220" y="196" text-anchor="middle" class="sans muted" font-size="13">Änderung veröffentlicht</text>
+
+  <g fill="none" class="tealstroke" stroke-width="1.5" opacity=".35">
+    <path d="M266 112 C 350 112, 370 50, 460 50"/>
+    <path d="M266 130 C 370 130, 380 130, 460 130"/>
+    <path d="M266 148 C 350 148, 370 210, 460 210"/>
+  </g>
+  <circle class="pulse p1 teal" r="5"/>
+  <circle class="pulse p2 teal" r="5"/>
+  <circle class="pulse p3 teal" r="5"/>
+
+  <g transform="translate(460,50)">
+    <rect x="0" y="-26" width="150" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="150" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen teal" x="12" y="-16" width="126" height="32" rx="4"/>
+  </g>
+  <g transform="translate(460,130)">
+    <rect x="0" y="-26" width="150" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="150" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen s2 teal" x="12" y="-16" width="126" height="32" rx="4"/>
+  </g>
+  <g transform="translate(460,210)">
+    <rect x="0" y="-26" width="150" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="150" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen s3 teal" x="12" y="-16" width="126" height="32" rx="4"/>
+  </g>
+
+  <text x="646" y="56" class="sans muted" font-size="13">Display 1</text>
+  <text x="646" y="136" class="sans muted" font-size="13">Display 2</text>
+  <text x="646" y="216" class="sans muted" font-size="13">Display 3</text>
+  <text x="535" y="252" text-anchor="middle" class="mono teal" font-size="12">angekommen nach ~1 s</text>
+</svg>

@@ -1,0 +1,178 @@
+[SetupInfo]
+Author                  = __AUTHOR__
+CreationDate            = 22.07.2026
+InventoryID             = {__UUID__}
+Description             = __VENDOR__ __PRODUCT__ Kiosk __VERSION__
+Method                  = Script
+Tested on               =
+Dependencies            =
+Command line options    = /S2
+Last Change             = 22.07.2026
+Build                   = 0
+
+[VarDefInfo]
+; <Variable>, <Type: 0=Computer 1=User>, <Allow NULL values: 0=No 1=Yes>
+
+[Setup]
+Version=14.2
+ShowCaption=1
+BlockInput=0
+Platform=*
+
+[Requirements]
+
+[Application]
+ProductName=OpenSignage Kiosk
+DeveloperName=OpenSignage
+Version=__VERSION__
+Revision=0
+SetupName=%ProductName% %Version% %SetupWizard%
+Text1="%ProductName% %Version%",         Arial,           30, , 2170F3, 4,    , LEFT BOLD ITALIC
+Text2="%DeveloperName%",                 Arial,           24, , 2170F3, 4,    , LEFT BOLD ITALIC
+Text8="%Company%",                       Arial,           18, , 2170F3, 4,  10, RIGHT BOLD ITALIC
+Text9="%InstallationFor% %WindowsUser%", Arial,           16, , 2170F3, 4, -18, BOTTOM ITALIC LEFT
+BackgroundColor=EFEFEF,000000
+CopyDialogRect=0%, 77%, 100%, 100%, HCENTER
+
+; Register all installations in common registry key
+UserKeyName=$Matrix42Packages$\%DeveloperName%\%ProductName%
+MachineKeyName=$Matrix42Packages$\%DeveloperName%\%ProductName%\%Version%
+UninstallKeyName=Matrix42 - %DeveloperName% %ProductName% %Version%
+UninstallDisplayName=Matrix42 - %DeveloperName% %ProductName% %Version%
+UninstallString=%ReinstallString% /U
+ReinstallString="%CommonSetupDir%\Setup.exe" "%App%\%SetupInfDir%\Setup.inf"
+UninstallOptions=NOREMOVE NOREPAIR NOMODIFY
+ReinstallMode=1
+SrcDir=..
+
+; Matrix42 Scripts are copied in a common scripts directory
+ApplicationDir=%CommonAppData%\$Matrix42Scripts$\%DeveloperName%\%ProductName%\%Version%
+
+SetupInfDir=Install
+DataDir=%Personal%
+AskUninstallOld=1
+ShellLinks=1
+CommonShellLinks=1
+CreateUnresolvableShellLinks=1
+UseStringSection=Strings:09
+UseSysStringSection=SysStrings:09
+DateWarning=1
+SizeWarning=0
+Reboot=0
+PreventExternalReboot=1
+StartServicesOnReboot=0
+CallTimeOut=3600
+AbortAfterCallTimeOut=1
+DisableCancelButton=1
+ShowEndMessage=1
+EndMessage=%EndMessageDesc%
+
+[Strings:07]
+Disk1=Installationsmedium 1
+EndMessageDesc=OpenSignage Kiosk wurde erfolgreich eingerichtet!
+ErrorLogMessage=Die Installation/Deinstallation wurde mit einer Fehlermeldung abgebrochen!
+InstallationFor=Installation fuer:
+InstallerDesc=Dienstprogramm zum Installieren einzelner Komponenten.
+InstallerName=Installationsprogramm
+SetupWizard=Installations-Assistent
+Uninstallation=deinstallieren
+
+[Strings:09]
+Disk1=Installation media 1
+EndMessageDesc=OpenSignage Kiosk was set up successfully!
+ErrorLogMessage=The installation/uninstallation aborted with an error message!
+InstallationFor=Installation fuer:
+InstallerDesc=Service program to install single components.
+InstallerName=Setup program
+SetupWizard=Installation Wizard
+Uninstallation=Uninstallation
+
+[SysStrings:07]
+Users=Benutzer
+
+[SysStrings:09]
+Users=Users
+
+[Environment]
+CommonSetupDir=%CommonFilesDir%\Setup%SetupBits%
+PSLogFile=%Temp%\OpenSignageKiosk_Install.log
+
+[Encryption]
+
+[Disks]
+1=%Disk1%
+
+[Options]
+Installer = %InstallerName%, COPYALWAYS, Installer, "%InstallerDesc%"
+Product   = %ProductName%,   COPYALWAYS, Product,   "OpenSignage Kiosk"
+
+[Installer]
+1:..\..\..\..\User\Setup.exe,          %CommonSetupDir%, OPTIONAL USEFILENAME DIRECTORY NOSIZEWARNING SETUP, 0
+1:%Temp%\Setup64.exe,                  %CommonSetupDir%\Setup.exe, OPTIONAL ALWAYS NOSIZEWARNING SETUP WINDOWS64,     0
+1:..\..\..\..\User\Setup64.exe,        %CommonSetupDir%\Setup.exe, OPTIONAL ALWAYS NOSIZEWARNING SETUP WINDOWS64,     0
+1:%SetupInfDir%\Setup.inf,                             , ALWAYS,                                             0
+
+[Product]
+#Set:Product, DONTDELETE
+#Set:Uninstall, DELETE
+
+[Set:Product]
+AddMeter -1
+; Kiosk-Einrichtung ueberwiegend mit NATIVEN Windows-Tools (certutil/net/reg) — diese werden von
+; EgoSecure praktisch nie blockiert (anders als powershell.exe als Kind des Setup-Prozesses).
+; Der mkdir-Marker zeigt, ob die Engine [Set:Product] ueberhaupt ausfuehrt.
+Call cmd.exe /c mkdir "C:\ProgramData\OpenSignage"
+; 1) CMS-Zertifikat in Trusted Root
+Call certutil.exe -addstore -f Root "%SRC%\opensignage-ca.crt"
+; 2) Kiosk-Konto anlegen (Passwort <=14 Zeichen -> net user fragt NICHT interaktiv nach) + zur Users-Gruppe
+; Kiosk-Konto und Auto-Logon macht das PowerShell-Skript weiter unten - MIT ZUFALLSPASSWORT.
+; Hier stand frueher ein festes Passwort im Klartext; diese Datei ist ueber die Anleitung
+; herunterladbar, damit kannte jeder im Netz das Kiosk-Konto aller Geraete.
+; 3) Auto-Logon (Winlogon)
+Call reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v AutoAdminLogon /t REG_SZ /d 1 /f
+Call reg.exe add "HKLM\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon" /v DefaultUserName /t REG_SZ /d kiosk /f
+; DefaultPassword setzt das PowerShell-Skript (Zufallswert, steht in keiner Datei).
+; 3b) Edge-Kiosk saeubern per Richtlinie: Uebersetzen-Popup + Erststart-Seite AUS (bombensicher, nicht nur Flag)
+Call reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v TranslateEnabled /t REG_DWORD /d 0 /f
+Call reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Edge" /v HideFirstRunExperience /t REG_DWORD /d 1 /f
+; 3c) Signage-Energieplan: NIEMALS schlafen/Display aus/sperren (sonst kommt nach Ruhezustand der Login,
+;     weil Auto-Logon nur beim Boot greift). Nativ per powercfg -> ueberlebt Reboots.
+Call powercfg.exe /change standby-timeout-ac 0
+Call powercfg.exe /change standby-timeout-dc 0
+Call powercfg.exe /change monitor-timeout-ac 0
+Call powercfg.exe /change monitor-timeout-dc 0
+Call powercfg.exe /change hibernate-timeout-ac 0
+Call powercfg.exe /change hibernate-timeout-dc 0
+Call powercfg.exe /change disk-timeout-ac 0
+Call powercfg.exe /change disk-timeout-dc 0
+Call powercfg.exe /setacvalueindex SCHEME_CURRENT SUB_NONE CONSOLELOCK 0
+Call powercfg.exe /setdcvalueindex SCHEME_CURRENT SUB_NONE CONSOLELOCK 0
+Call powercfg.exe /setactive SCHEME_CURRENT
+; Sperrbildschirm ganz aus (kein Lock -> Sitzung bleibt aktiv)
+Call reg.exe add "HKLM\SOFTWARE\Policies\Microsoft\Windows\Personalization" /v NoLockScreen /t REG_DWORD /d 1 /f
+Call reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Power" /v AwayModeEnabled /t REG_DWORD /d 0 /f
+; 3d) WLAN HART AUS (Geraet haengt am LAN): WLAN-AutoConfig-Dienst deaktivieren (name-unabhaengig, dauerhaft)
+;     + Adapter abschalten (DE/EN-Name). sc/reg -> kein interaktiver Prompt.
+Call sc.exe stop Wlansvc
+Call reg.exe add "HKLM\SYSTEM\CurrentControlSet\Services\Wlansvc" /v Start /t REG_DWORD /d 4 /f
+Call netsh.exe interface set interface name="Wi-Fi" admin=disabled
+Call netsh.exe interface set interface name="WLAN" admin=disabled
+; 4) Assigned Access (braucht zwingend PowerShell/WMI). Skript ist idempotent, legt Konto ggf. erneut an
+;    und protokolliert nach C:\ProgramData\OpenSignage\install.log (auch ohne Admin lesbar).
+Call powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%SRC%\Install-OpenSignageKiosk.ps1"
+
+[Set:Uninstall]
+-AddMeter -1
+-Call powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%SRC%\Uninstall-OpenSignageKiosk.ps1"
+
+[AbortInst]
+ErrorLogMsg %ErrorLogMessage% ErrorLevel: %ErrorLevel%
+Abort
+
+[Reg:Product]
+
+[Ini:Product]
+
+[Security:Product]
+
+[Shell:Product]

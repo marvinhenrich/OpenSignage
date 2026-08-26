@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Windows-Player · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html">OpenSignage</a>
+      <a href="installation.html">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html">Module</a>
+      <a href="windows.html" aria-current="page">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html">Betrieb</a>
+      <a href="fehlersuche.html">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Windows-Player</h1>
+    <p class="lead">Geräte unbeaufsichtigt einrichten.</p>
+
+
+    <h2>Was das Paket macht</h2>
+    <p>Die Anzeigegeräte laufen als <strong>echter Windows-Kiosk</strong> (Assigned Access) mit
+    Edge im Vollbild: kein Desktop, keine Taskleiste, Alt+Tab und Tab-Wechsel gesperrt. Ein
+    Paket, einmal einer Gerätegruppe zugewiesen — jedes Gerät wird damit identisch und von
+    Grund auf eingerichtet, egal in welchem Zustand es vorher war.</p>
+
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Zertifikat</b></td><td>Das CMS-Zertifikat wird als vertrauenswürdig hinterlegt.</td></tr>
+        <tr><td><b>Kiosk-Konto</b></td><td>Eigenes lokales Konto mit <b>eigenem Zufallskennwort je Gerät</b>.</td></tr>
+        <tr><td><b>Anmeldung</b></td><td>Automatisch, vor und nach der Kennwortänderung geprüft.</td></tr>
+        <tr><td><b>Geräte-Geheimnis</b></td><td>Je Gerät erzeugt, in <code>C:\ProgramData\&lt;Name&gt;\device.key</code>.</td></tr>
+        <tr><td><b>Zeitschaltung</b></td><td>Ein- und Ausschaltzeiten als geplante Aufgabe.</td></tr>
+        <tr><td><b>Geräteagent</b></td><td>Macht Neustart und Herunterfahren aus dem CMS möglich.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Warum es einen Agenten braucht</h2>
+    <p>Der Player ist eine Webseite. Sie kann sich neu laden, aber den Rechner nicht neu
+    starten — und im Edge-Kiosk gibt es keine Brücke zum Betriebssystem. Ohne Agent verpuffen
+    Neustart und Herunterfahren aus dem CMS wirkungslos.</p>
+
+    <p>Der Agent läuft als geplante Aufgabe unter SYSTEM, jede Minute, und beendet sich sofort
+    wieder. Kein Dienst, kein Dauerprozess.</p>
+
+    <div class="achtung"><p><b>Bewusst konservativ.</b> Der Server liefert jeden Befehl genau
+    einmal aus und verwirft ihn nach fünf Minuten. Der Agent merkt sich zusätzlich die zuletzt
+    ausgeführten Vorgänge und erlaubt höchstens <b>einen Neustart je zehn Minuten</b>. Selbst
+    wenn Server oder Netz Unsinn liefern, kann daraus keine Dauerschleife werden.</p></div>
+
+    <h2>Identität eines Geräts</h2>
+    <p>Ein Display wird über den <strong>Rechnernamen</strong> identifiziert, nicht über einen
+    Zufallswert im Browserspeicher. Deshalb bleibt die Kopplung über Neustarts und
+    Profil-Zurücksetzungen erhalten — Assigned Access wischt das Edge-Profil regelmäßig.</p>
+
+    <p>Dazu kommt ein <strong>Geräte-Geheimnis</strong>. Der Server speichert nur dessen
+    SHA-256-Abdruck und bindet es beim ersten Kontakt. Danach kann sich kein fremdes Gerät als
+    ein bereits bekanntes ausgeben. Für den Gerätetausch gibt es ein Zurücksetzen, das nur
+    Administratoren auslösen können.</p>
+
+    <h2>Ausrollen</h2>
+    <ol>
+      <li>Paket im CMS unter <b>Anleitung</b> herunterladen.</li>
+      <li>In die Softwareverteilung importieren.</li>
+      <li>Einer Gerätegruppe zuweisen — nicht einzelnen Geräten, sonst wird es unübersichtlich.</li>
+      <li>Verteilen. Nach dem Neustart meldet sich das Gerät mit einem Kopplungscode.</li>
+      <li>Im CMS unter <b>Displays</b> freigeben.</li>
+    </ol>
+
+    <div class="hinweis"><p>Das Paket ist wiederholbar: bei jeder erneuten Installation wird das
+    Gerät auf denselben Zustand gezogen. Protokoll am Gerät unter
+    <code>C:\ProgramData\&lt;Name&gt;\install.log</code>, auch ohne Administratorrechte lesbar.</p></div>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

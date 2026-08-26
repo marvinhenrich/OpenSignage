@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Module · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html">OpenSignage</a>
+      <a href="installation.html">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html" aria-current="page">Module</a>
+      <a href="windows.html">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html">Betrieb</a>
+      <a href="fehlersuche.html">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Module</h1>
+    <p class="lead">Der Kern ist klein, alles andere lässt sich abschalten.</p>
+
+
+    <h2>Der Kern ist klein</h2>
+    <p>Zum Kern gehören <strong>Displays, Layouts, Medien, Player und Benutzer</strong>. Ohne
+    die bliebe nichts übrig, was man bedienen könnte — sie lassen sich nicht abschalten.</p>
+
+    <p>Alles andere ist ein Modul. Ein Administrator schaltet es unter <b>Module</b> ab, und
+    dann verschwindet es aus dem Menü, aus der Auswahl der Inhalte <strong>und aus der
+    Schnittstelle</strong>. Abgeschaltet heißt gesperrt, nicht nur ausgeblendet: die Oberfläche
+    ist keine Sicherheitsgrenze.</p>
+
+    <div class="hinweis"><p><b>Standard ist an.</b> Eine frische Installation ist vollständig;
+    erst ein bewusstes Abschalten ändert etwas. Und eine bestehende Installation verhält sich
+    nach einem Update genau wie vorher.</p></div>
+
+    <figure>
+      <img src="screenshots/09-module.png" alt="Modulverwaltung mit Schaltern je Modul">
+      <figcaption>Jedes Modul mit einem Satz, was es leistet, und der Voraussetzung, die der
+      Betreiber selbst stellen muss.</figcaption>
+    </figure>
+
+    <h2>Die Module</h2>
+    <h3>Inhalte</h3>
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Wetter</b></td><td>Wetterkachel. Braucht den Abruf eines Wetterdienstes über das Internet.</td></tr>
+        <tr><td><b>Nachrichtenticker</b></td><td>Schlagzeilen aus einem RSS- oder Atom-Feed.</td></tr>
+        <tr><td><b>Webseiten</b></td><td>Fremde Webseiten und eigenes HTML in einer Region.</td></tr>
+        <tr><td><b>Monitoring</b></td><td>Bausteine für ein Wallboard aus Icinga 2. Braucht die
+          API und einen Benutzer mit Leserechten.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Planung</h3>
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Kampagnen</b></td><td>Mehrere Layouts nacheinander als eine Einheit.</td></tr>
+        <tr><td><b>Zeitplan</b></td><td>Was wann auf welchem Display läuft, mit Tageszeiten und Vorrang.</td></tr>
+        <tr><td><b>Display-Gruppen</b></td><td>Damit ein Zeitplan nicht je Gerät gepflegt werden muss.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Betrieb</h3>
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Wall</b></td><td>Alle Displays als Live-Miniplayer.</td></tr>
+        <tr><td><b>Sofort-Einblendung</b></td><td>Meldung sofort auf allen betroffenen Displays.</td></tr>
+        <tr><td><b>Statistik</b></td><td>Verfügbarkeit, Wiedergabenachweis, Fehlerbilder.</td></tr>
+        <tr><td><b>Änderungsprotokoll</b></td><td>Wer wann was geändert hat.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Was beim Abschalten passiert</h2>
+    <ul>
+      <li><b>Vorhandene Inhalte bleiben.</b> Ein bereits eingerichtetes Widget verschwindet
+        nicht aus einem Layout — es lässt sich nur nicht mehr neu hinzufügen.</li>
+      <li><b>Die Schnittstelle antwortet klar.</b> Ein Aufruf auf einen abgeschalteten Bereich
+        bekommt eine Meldung mit dem Namen des Moduls, nicht ein „nicht gefunden". Wer sucht,
+        soll den Schalter finden, nicht das Netzwerk debuggen.</li>
+      <li><b>Abhängigkeiten werden mitgeteilt.</b> Wer ein Modul abschaltet, von dem andere
+        abhängen, bekommt gesagt, was dadurch ebenfalls stillsteht.</li>
+    </ul>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

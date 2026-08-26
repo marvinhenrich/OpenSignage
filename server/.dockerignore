@@ -1,0 +1,7 @@
+# Was NICHT in den Bau-Kontext gehoert.
+# node_modules waere nicht nur riesig, sondern auch falsch: im Container wird fuer
+# Linux gebaut, hier liegen macOS-Binaerteile.
+node_modules
+dist
+*.log
+.env

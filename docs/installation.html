@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Installation · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html">OpenSignage</a>
+      <a href="installation.html" aria-current="page">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html">Module</a>
+      <a href="windows.html">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html">Betrieb</a>
+      <a href="fehlersuche.html">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Installation</h1>
+    <p class="lead">Ein Befehl, dann läuft es.</p>
+
+
+    <h2>Voraussetzungen</h2>
+    <p>Ein Linux-Server mit Docker und Docker Compose. Sonst nichts — weder Node noch eine
+    Datenbank müssen vorhanden sein, beides bringt der Stapel mit.</p>
+
+    <h2>Starten</h2>
+<pre><code>git clone https://github.com/marvinhenrich/OpenSignage.git
+cd OpenSignage
+docker compose up -d</code></pre>
+
+    <p>Danach <code>https://&lt;Serveradresse&gt;</code> aufrufen. Mehr ist nicht nötig: es gibt
+    keine Datei, die vorher bearbeitet werden muss.</p>
+
+    <h3>Was beim ersten Start automatisch passiert</h3>
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Geheimnisse</b></td><td>Für diese Installation werden eigene Zufallswerte
+          erzeugt und im Datenträger <code>secrets</code> abgelegt. Es gibt <b>kein
+          ausgeliefertes Standardkennwort</b>.</td></tr>
+        <tr><td><b>TLS</b></td><td>Liegt kein Zertifikat vor, wird ein selbstsigniertes für
+          zehn Jahre erzeugt.</td></tr>
+        <tr><td><b>Datenbank</b></td><td>Schema wird angelegt und bei Updates automatisch
+          mitgewandert.</td></tr>
+        <tr><td><b>Administrator</b></td><td>Benutzer <code>admin</code> mit Zufallskennwort,
+          das einmalig im Protokoll steht.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3>Zugangsdaten abholen</h3>
+<pre><code>docker compose logs cms | grep -A3 "ADMIN-BENUTZER"</code></pre>
+
+    <div class="achtung"><p><b>Nach der ersten Anmeldung ändern.</b> Das erzeugte Kennwort steht
+    im Protokoll und bleibt dort, bis die Protokolle rotieren.</p></div>
+
+    <h2>Eigenes Zertifikat</h2>
+    <p>Das selbst erzeugte Zertifikat ist ein funktionierender Startpunkt, kein Ersatz für ein
+    richtiges. Wer eine interne Zertifizierungsstelle betreibt, legt <code>server.crt</code> und
+    <code>server.key</code> in den Datenträger <code>certs</code> — dann wird nichts erzeugt.</p>
+
+    <div class="hinweis"><p>Bei Kiosk-Betrieb muss das Zertifikat auf den Anzeigegeräten als
+    vertrauenswürdig hinterlegt sein. Das Kiosk-Paket erledigt das mit.</p></div>
+
+    <h2>Optionale Einstellungen</h2>
+    <p>Alles Weitere ist freiwillig und steht in <code>.env.example</code>. Ohne diese Datei
+    laufen sinnvolle Vorgaben.</p>
+    <div class="tabelle"><table>
+      <thead><tr><th>Einstellung</th><th>Wofür</th></tr></thead>
+      <tbody>
+        <tr><td><code>PUBLIC_URL</code></td><td>Adresse in Einladungslinks und im Kiosk-Paket</td></tr>
+        <tr><td><code>BRAND_NAME</code>, <code>BRAND_VENDOR</code></td><td>Name der Anlage in
+          Oberfläche und Dokumenten</td></tr>
+        <tr><td><code>BRAND_SLUG</code></td><td>Ordner- und Aufgabennamen auf den Windows-Geräten.
+          <b>Nachträglich ändern bricht bereits installierte Geräte.</b></td></tr>
+        <tr><td><code>AD_DCS</code>, <code>AD_UPN_SUFFIX</code></td><td>Anmeldung gegen Active
+          Directory. Leer = nur lokale Konten.</td></tr>
+        <tr><td><code>ICINGA_URL</code>, <code>ICINGA_API_USER</code></td><td>Monitoring-Kachel.
+          Bitte einen Benutzer mit <b>nur Leserechten</b> anlegen.</td></tr>
+      </tbody>
+    </table></div>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

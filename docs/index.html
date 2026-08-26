@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenSignage · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html" aria-current="page">OpenSignage</a>
+      <a href="installation.html">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html">Module</a>
+      <a href="windows.html">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html">Betrieb</a>
+      <a href="fehlersuche.html">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>OpenSignage</h1>
+    <p class="lead">Digital Signage, das in einer Sekunde umschaltet — statt zu pollen.</p>
+
+      <figure><img class="hero" src="diagramm.svg" alt="Eine Änderung im CMS erreicht drei Displays in etwa einer Sekunde"></figure>
+
+
+    <div class="karten">
+      <a class="karte" href="installation.html"><h3>Installation</h3>
+        <p>Ein Befehl, dann läuft es. Was dabei automatisch passiert und was optional ist.</p></a>
+      <a class="karte" href="module.html"><h3>Module</h3>
+        <p>Der Kern ist klein. Alles andere lässt sich abschalten — auch in der Schnittstelle.</p></a>
+      <a class="karte" href="windows.html"><h3>Windows-Player</h3>
+        <p>Geräte unbeaufsichtigt einrichten: Kiosk, Autostart, Ein- und Ausschaltzeiten.</p></a>
+      <a class="karte" href="betrieb.html"><h3>Betrieb</h3>
+        <p>Sichern, aktualisieren, Zertifikat austauschen, Protokolle lesen.</p></a>
+    </div>
+
+    <h2>Worum es geht</h2>
+    <p>OpenSignage ist ein selbst betriebenes Content-Management-System für Bildschirme:
+    Layouts mit Regionen, Playlists, Kampagnen, Zeitpläne, Displayverwaltung. Der Unterschied
+    zu den üblichen Lösungen liegt im Übertragungsweg.</p>
+
+    <p><strong>Die Player fragen nicht nach, sie hängen dran.</strong> Jedes Gerät hält eine
+    dauerhafte WebSocket-Verbindung zum CMS. Eine Änderung löst einen gezielten Push an genau
+    die betroffenen Displays aus — nachladen und Wechsel ohne schwarzes Bild, in etwa einer
+    Sekunde. Kein Abrufintervall, auf das man wartet.</p>
+
+    <p>Fällt das Netz aus, läuft der zuletzt gültige Stand aus dem lokalen Zwischenspeicher
+    weiter und gleicht sich beim Wiederverbinden ab. Ein Gerät ohne Verbindung zeigt also
+    weiter Inhalt, nicht eine Fehlermeldung.</p>
+
+    <h2>Was mitgeliefert wird</h2>
+    <div class="tabelle"><table>
+      <thead><tr><th>Bereich</th><th>Inhalt</th></tr></thead>
+      <tbody>
+        <tr><td><b>Layout-Editor</b></td><td>Regionen ziehen, ausrichten, aneinander einrasten,
+          gruppiert verschieben. Layoutgröße ändern skaliert die Regionen proportional mit.
+          Rückgängig/Wiederholen, Tastaturbedienung, Vorschau im Zielformat.</td></tr>
+        <tr><td><b>Wall</b></td><td>Alle Displays als Live-Miniplayer. Jedes Gerät meldet über
+          seine bestehende Verbindung seinen tatsächlichen Ausgabezustand.</td></tr>
+        <tr><td><b>Inhalte</b></td><td>Bild, Video, Audio, PDF, Text, Uhr, Wetter,
+          Nachrichtenticker, Webseite, eigenes HTML, Monitoring.</td></tr>
+        <tr><td><b>Planung</b></td><td>Kampagnen, Zeitplan mit Tageszeiten und Vorrang,
+          Display-Gruppen.</td></tr>
+        <tr><td><b>Betrieb</b></td><td>Betriebsprotokolle, Verfügbarkeit, Wiedergabenachweis,
+          Fehlerberichte, Änderungsprotokoll.</td></tr>
+        <tr><td><b>Windows-Kiosk</b></td><td>Fertiges Paket: Assigned Access, Autostart,
+          Selbstaktualisierung, Ein-/Ausschaltzeiten, Geräteagent für Neustart.</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Was die Wall zeigt — und was nicht</h2>
+    <p>Die Wall rendert mit <strong>demselben Renderer wie der Player</strong> einen
+    maßstabsgetreuen Mini-Player aus dem, was das Gerät selbst meldet: Modus, Inhaltsversion,
+    laufendes Widget je Region, Wiedergabefehler.</p>
+    <div class="hinweis"><p><b>Das ist kein Bildschirmfoto.</b> Kiosk-Geräte unter Assigned
+    Access haben keine Betriebssystem-Brücke, können also keine Pixel liefern. Die Oberfläche
+    schreibt deshalb „gemeldet vor X s" oder „offline seit …" und behauptet nie, ein Foto zu
+    zeigen. Wer ein Foto erwartet und keines bekommt, soll wissen warum.</p></div>
+
+    <figure>
+      <img src="screenshots/06-wall.png" alt="Wall mit drei Displays, zwei online, eines offline">
+      <figcaption>Zwei Geräte melden live, das dritte ist offline und zeigt seinen letzten
+      gemeldeten Stand — gedämpft und beschriftet.</figcaption>
+    </figure>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  OpenSignage — Windows Assigned Access (echter Single-App-Kiosk).
+  Sperrt das Gerät auf Microsoft Edge im Vollbild-Kiosk auf die Player-URL:
+  kein Desktop, keine Taskleiste, Alt+Tab/Win/Ctrl+Esc etc. sind gesperrt.
+  __PLAYER_URL__ und __KIOSK_ACCOUNT__ werden vom Installer ersetzt.
+-->
+<AssignedAccessConfiguration
+    xmlns="http://schemas.microsoft.com/AssignedAccess/2017/config"
+    xmlns:rs5="http://schemas.microsoft.com/AssignedAccess/201810/config"
+    xmlns:v5="http://schemas.microsoft.com/AssignedAccess/2022/config">
+  <Profiles>
+    <Profile Id="{AFF9DA33-AE89-4039-B646-3603D4225218}">
+      <AllAppsList>
+        <AllowedApps>
+          <App DesktopAppPath="%ProgramFiles(x86)%\Microsoft\Edge\Application\msedge.exe"
+               rs5:AutoLaunch="true"
+               rs5:AutoLaunchArguments="--kiosk __PLAYER_URL__ --edge-kiosk-type=fullscreen --no-first-run --no-default-browser-check --disable-translate --disable-sync --disable-features=msEdgeWelcomePage,TranslateUI,Translate --edge-kiosk-idle-timeout-minutes=0 --autoplay-policy=no-user-gesture-required --overscroll-history-navigation=0 --disable-pinch" />
+        </AllowedApps>
+      </AllAppsList>
+      <v5:StartPins>{"pinnedList":[]}</v5:StartPins>
+      <Taskbar ShowTaskbar="false" />
+    </Profile>
+  </Profiles>
+  <Configs>
+    <Config>
+      <Account>__KIOSK_ACCOUNT__</Account>
+      <DefaultProfile Id="{AFF9DA33-AE89-4039-B646-3603D4225218}" />
+    </Config>
+  </Configs>
+</AssignedAccessConfiguration>

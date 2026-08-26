@@ -1,0 +1,28 @@
+# Abhaengigkeiten und Bauartefakte
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+
+# Eigene Einstellungen und Geheimnisse - gehoeren NIE ins Repository
+.env
+*.env.local
+
+# Zertifikate und Schluessel - gehoeren NIE ins Repository
+*.crt
+*.key
+*.pem
+*.pfx
+deploy/nginx/certs/
+
+# Erzeugte Kiosk-Pakete
+admin/public/downloads/
+deploy/windows/empirum/build/
+*.zip
+
+# Betriebssystem / Editor
+.DS_Store
+Thumbs.db
+*.log
+.idea/
+.vscode/

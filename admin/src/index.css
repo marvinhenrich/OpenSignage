@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 antialiased;
+  }
+  :focus-visible {
+    @apply outline-none ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-offset-slate-950;
+  }
+}
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+}
+
+/* --- Layout-Editor: hintergrundunabhängige Regions-Kontur ----------------- */
+.stv-region {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.55), inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+}
+.stv-region:hover {
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 0 0 1px rgba(255, 255, 255, 0.8);
+}
+.stv-region--active {
+  box-shadow: 0 0 0 2px #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+.stv-region--active:hover {
+  box-shadow: 0 0 0 2px #3b82f6;
+}
+/* Werkbank-Fläche: dezentes Punktraster, damit der Canvas als Objekt darauf liegt */
+.stv-stage {
+  background-image: radial-gradient(currentColor 1px, transparent 1px);
+  background-size: 22px 22px;
+  color: rgba(100, 116, 139, 0.18);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}

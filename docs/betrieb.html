@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Betrieb · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html">OpenSignage</a>
+      <a href="installation.html">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html">Module</a>
+      <a href="windows.html">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html" aria-current="page">Betrieb</a>
+      <a href="fehlersuche.html">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Betrieb</h1>
+    <p class="lead">Sichern, aktualisieren, Protokolle lesen.</p>
+
+
+    <h2>Aktualisieren</h2>
+<pre><code>bash deploy/update.sh</code></pre>
+    <p>Sichert zuerst die Datenbank, holt dann den neuen Stand, baut und startet durch.
+    <strong>Bricht ab, wenn es lokale Änderungen gibt</strong> — statt sie stillschweigend zu
+    verwerfen. Datenbank und hochgeladene Dateien bleiben unberührt.</p>
+
+    <h2>Sichern</h2>
+<pre><code>docker compose exec db pg_dump -U opensignage opensignage &gt; sicherung.sql</code></pre>
+
+    <div class="achtung"><p><b>Den Datenträger <code>secrets</code> mitsichern.</b> Ohne das
+    Datenbankkennwort lässt sich eine gesicherte Datenbank nicht mehr öffnen. Ebenso
+    <code>media</code> (hochgeladene Dateien) und <code>downloads</code> (erzeugte Pakete).</p></div>
+
+    <p>Für den Dauerbetrieb liegen ein Sicherungsskript und ein systemd-Timer unter
+    <code>deploy/</code>. Der Timer ist bewusst kein Cron-Eintrag: auf aktuellen
+    Ubuntu-Installationen ist Cron nicht mehr vorhanden, und ein Eintrag dort läuft
+    stillschweigend nie.</p>
+
+    <h2>Protokolle</h2>
+<pre><code>docker compose logs -f cms      # CMS und WebSocket
+docker compose logs -f web      # Auslieferung und TLS
+docker compose logs db          # Datenbank</code></pre>
+
+    <h2>Bestehende Installation übernehmen</h2>
+    <p>Wer den Stapel bisher mit einer eigenen Compose-Datei betrieben hat, wechselt ohne
+    Neuaufsetzen:</p>
+<pre><code>bash deploy/migrate-existing.sh &lt;alter-Projektname&gt; [alte/.env]</code></pre>
+    <p>Das Skript übernimmt die vorhandenen Datenträger, das bisherige Datenbankkennwort und
+    <strong>das bestehende TLS-Zertifikat</strong>. Der letzte Punkt ist der wichtigste: die
+    Anzeigegeräte vertrauen genau diesem Zertifikat, ein neues ließe jedes Gerät in eine
+    Warnung laufen.</p>
+
+    <h2>Sicherheit im Betrieb</h2>
+    <div class="tabelle"><table>
+      <tbody>
+        <tr><td><b>Geräteidentität</b></td><td>Geheimnis je Gerät, gespeichert als SHA-256-Abdruck,
+          beim ersten Kontakt gebunden.</td></tr>
+        <tr><td><b>Medien-Uploads</b></td><td>Nach Dateiendung gefiltert, ausgeliefert mit
+          <code>nosniff</code> und strenger Content-Security-Policy. Eine hochgeladene Datei kann
+          kein Skript in der Herkunft des CMS ausführen.</td></tr>
+        <tr><td><b>Angriffsfläche</b></td><td>Datenbank und CMS sind nicht nach außen
+          veröffentlicht; einziger Eingang ist der TLS-Endpunkt.</td></tr>
+        <tr><td><b>Nachrichtenrate</b></td><td>Die WebSocket-Verbindungen sind in Rate und
+          Nachrichtengröße begrenzt.</td></tr>
+        <tr><td><b>Monitoring</b></td><td>Zugangsdaten liegen ausschließlich beim Server, nie auf
+          einem Anzeigegerät.</td></tr>
+      </tbody>
+    </table></div>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

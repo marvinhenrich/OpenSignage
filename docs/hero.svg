@@ -1,0 +1,106 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-labelledby="t d">
+  <title id="t">OpenSignage</title>
+  <desc id="d">Eine Änderung im CMS erreicht die angeschlossenen Bildschirme über eine dauerhafte Verbindung in etwa einer Sekunde.</desc>
+
+  <style>
+    /* GRUNDSATZ: Der Ruhezustand ist der fertige Zustand. Laeuft keine
+       Bewegung, steht trotzdem alles da — nur die reinen Impulspunkte fehlen,
+       und die vermisst niemand. CSS statt SMIL, damit prefers-reduced-motion
+       ueberhaupt greifen kann. */
+    .sans { font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+    .paper { fill: #FAF9F5; }
+    .card  { fill: #FFFFFF; }
+    .line  { stroke: #E6E2D8; }
+    .ink   { fill: #17181B; }
+    .body  { fill: #474C55; }
+    .muted { fill: #6A6F79; }
+    .teal  { fill: #0F6E56; }
+    .tealstroke { stroke: #0F6E56; }
+
+    @media (prefers-color-scheme: dark) {
+      .paper { fill: #141513; }
+      .card  { fill: #1C1E1B; }
+      .line  { stroke: #2E312C; }
+      .ink   { fill: #F0EFE9; }
+      .body  { fill: #C2C1B8; }
+      .muted { fill: #8B8A80; }
+      .teal  { fill: #45C47C; }
+      .tealstroke { stroke: #45C47C; }
+    }
+
+    /* Bildschirminhalt: im Ruhezustand sichtbar, die Animation laesst ihn
+       kurz heller aufleuchten — der Moment, in dem die Aenderung ankommt. */
+    @keyframes ankommen {
+       0%,  28% { opacity: .12; }
+      34%,  56% { opacity: .30; }
+      64%, 100% { opacity: .12; }
+    }
+    .screen { opacity: .12; animation: ankommen 2.8s ease-in-out infinite; }
+    .s2 { animation-delay: .12s; }
+    .s3 { animation-delay: .24s; }
+
+    /* Reine Zugabe: ohne Bewegung nicht vorhanden, damit keine Punkte
+       irgendwo im Bild stehen bleiben. */
+    .pulse { opacity: 0; }
+    @keyframes fliegen {
+       0%       { offset-distance: 0%;   opacity: 0; }
+       8%       { opacity: 1; }
+      28%       { offset-distance: 100%; opacity: 1; }
+      34%, 100% { offset-distance: 100%; opacity: 0; }
+    }
+    .pulse { animation: fliegen 2.8s cubic-bezier(.4,0,.2,1) infinite; }
+    .p1 { offset-path: path("M746 132 C 830 132, 850 70, 940 70"); }
+    .p2 { offset-path: path("M746 150 C 850 150, 860 150, 940 150"); animation-delay: .12s; }
+    .p3 { offset-path: path("M746 168 C 830 168, 850 230, 940 230"); animation-delay: .24s; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .screen, .pulse { animation: none; }
+    }
+  </style>
+
+  <rect width="1200" height="300" class="paper"/>
+  <rect x="0" y="0" width="1200" height="3" class="teal"/>
+
+  <text x="72" y="132" class="sans ink" font-size="46" font-weight="600" letter-spacing="-1">OpenSignage</text>
+  <text x="72" y="170" class="sans body" font-size="19">Digital Signage, das in einer Sekunde umschaltet — statt zu pollen.</text>
+  <text x="72" y="200" class="sans muted" font-size="16">Digital signage that updates in ~1 second — instead of polling.</text>
+
+  <text x="74" y="238" class="mono muted" font-size="13">docker compose up -d</text>
+  <rect x="66" y="222" width="200" height="22" rx="6" fill="none" class="line" stroke-width="1"/>
+
+  <g transform="translate(700,150)">
+    <rect x="-46" y="-30" width="92" height="60" rx="12" class="card"/>
+    <rect x="-46" y="-30" width="92" height="60" rx="12" fill="none" class="line" stroke-width="1.5"/>
+    <text x="0" y="5" text-anchor="middle" class="mono teal" font-size="15" font-weight="600">CMS</text>
+  </g>
+
+  <g fill="none" class="tealstroke" stroke-width="1.5" opacity=".35">
+    <path d="M746 132 C 830 132, 850 70, 940 70"/>
+    <path d="M746 150 C 850 150, 860 150, 940 150"/>
+    <path d="M746 168 C 830 168, 850 230, 940 230"/>
+  </g>
+
+  <circle class="pulse p1 teal" r="5"/>
+  <circle class="pulse p2 teal" r="5"/>
+  <circle class="pulse p3 teal" r="5"/>
+
+  <g transform="translate(940,70)">
+    <rect x="0" y="-26" width="118" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="118" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen teal" x="10" y="-16" width="98" height="32" rx="4"/>
+  </g>
+  <g transform="translate(940,150)">
+    <rect x="0" y="-26" width="118" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="118" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen s2 teal" x="10" y="-16" width="98" height="32" rx="4"/>
+  </g>
+  <g transform="translate(940,230)">
+    <rect x="0" y="-26" width="118" height="52" rx="8" class="card"/>
+    <rect x="0" y="-26" width="118" height="52" rx="8" fill="none" class="line" stroke-width="1.5"/>
+    <rect class="screen s3 teal" x="10" y="-16" width="98" height="32" rx="4"/>
+  </g>
+
+  <text x="999" y="278" text-anchor="middle" class="mono muted" font-size="12">~1 s</text>
+</svg>

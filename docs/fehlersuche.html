@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fehlersuche · OpenSignage</title>
+<meta name="description" content="Selbst betriebenes Digital-Signage-CMS mit Live-Push statt Polling. Dokumentation zu Installation, Modulen, Windows-Kiosk und Betrieb.">
+<meta name="color-scheme" content="light dark">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="marke" href="index.html">Open<span>Signage</span></a>
+  <nav>
+    <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext</a>
+    <a href="https://github.com/marvinhenrich/OpenSignage/releases">Ausgaben</a>
+  </nav>
+</header>
+
+<div class="wrap">
+  <aside>
+    <nav>
+      <h4>Einstieg</h4>
+      <a href="index.html">OpenSignage</a>
+      <a href="installation.html">Installation</a>
+      <h4>Bedienen</h4>
+      <a href="module.html">Module</a>
+      <a href="windows.html">Windows-Player</a>
+      <h4>Betreiben</h4>
+      <a href="betrieb.html">Betrieb</a>
+      <a href="fehlersuche.html" aria-current="page">Fehlersuche</a>
+    </nav>
+  </aside>
+
+  <main>
+    <h1>Fehlersuche</h1>
+    <p class="lead">Was erfahrungsgemäß schiefgeht — und woran es liegt.</p>
+
+
+    <h2>Ein Display bleibt offline</h2>
+    <p>Zuerst in der <b>Wall</b> nachsehen: dort steht, wann sich das Gerät zuletzt gemeldet hat.
+    Ein Gerät, das nie erschienen ist, hat sich nie angemeldet — eines mit altem Zeitstempel hat
+    die Verbindung verloren.</p>
+    <ul>
+      <li>Erreicht das Gerät die CMS-Adresse? Im Kiosk lässt sich das schlecht prüfen, deshalb
+        vom selben Netzsegment aus testen.</li>
+      <li>Vertraut es dem Zertifikat? Ohne Vertrauen bricht die Verbindung ohne sichtbare Meldung ab.</li>
+      <li>Protokoll am Gerät unter <code>C:\ProgramData\&lt;Name&gt;\install.log</code>.</li>
+    </ul>
+
+    <h2>Verbindungen brechen nach genau einer Stunde ab</h2>
+    <p>Das ist ein Zeitlimit im vorgelagerten Webserver. <code>proxy_read_timeout</code> zählt
+    <strong>nur Daten vom CMS zum Player</strong> — der Herzschlag des Players läuft in die
+    Gegenrichtung und hält die Verbindung nicht offen.</p>
+    <div class="hinweis"><p>In der mitgelieferten Konfiguration steht der Wert deshalb auf
+    <code>7d</code>, und das CMS schickt zusätzlich alle 30 Sekunden einen eigenen Ping. Wer eine
+    eigene Konfiguration betreibt, muss beides nachziehen.</p></div>
+
+    <h2>Ein Befehl aus dem CMS bewirkt nichts</h2>
+    <p>Neustart und Herunterfahren brauchen den <b>Geräteagenten</b>. Ohne ihn meldet der Player
+    ehrlich zurück, dass er den Befehl nicht ausführen kann — die Rückmeldung steht im
+    Display-Protokoll. Screenshots sind aus dem Systemkontext grundsätzlich nicht möglich, weil
+    der Bildschirm der angemeldeten Sitzung gehört.</p>
+
+    <h2>Ein Bereich ist verschwunden</h2>
+    <p>Vermutlich ist sein Modul abgeschaltet. Unter <b>Module</b> nachsehen. Ruft man die
+    Schnittstelle direkt auf, antwortet sie mit dem Namen des Moduls und dem Hinweis, wo der
+    Schalter sitzt.</p>
+
+    <h2>Der Layout-Editor verhält sich seltsam</h2>
+    <p>Nach einer Änderung der Layoutgröße werden die Regionen serverseitig proportional
+    mitskaliert. Wirken sie trotzdem falsch, hilft <b>Einpassen</b> in der Fußzeile des Editors —
+    das setzt die Ansicht zurück, nicht die Daten.</p>
+
+    <h2>Die Monitoring-Kachel zeigt eine Störung, die sofort wieder weg ist</h2>
+    <p>Steht ein Host auf <code>max_check_attempts = 1</code>, gilt ein einziger verlorener Ping
+    sofort als bestätigte Störung, obwohl das Gerät erreichbar ist. Die Kachel filtert solche
+    Zuckungen: weiche Zustände und flatternde Objekte werden ausgeblendet, und eine Störung
+    braucht eine Beruhigungszeit, bevor sie auf die Tafel darf.</p>
+    <div class="hinweis"><p>Sauberer ist es, <code>max_check_attempts</code> in Icinga auf 3 zu
+    setzen. Dann ist die Störung erst eine, wenn sie dreimal hintereinander auftritt.</p></div>
+
+
+    <footer>
+      <p>OpenSignage — <a href="https://github.com/marvinhenrich/OpenSignage">Quelltext auf GitHub</a>.
+      Diese Seite wird direkt aus dem Repository ausgeliefert.</p>
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>

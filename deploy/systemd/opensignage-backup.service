@@ -1,0 +1,13 @@
+[Unit]
+Description=OpenSignage - taegliche Sicherung (PostgreSQL-Dump + Medien)
+Documentation=file:/home/signageadmin/opensignage/deploy/backup.sh
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+Environment=BACKUP_DIR=/home/signageadmin/opensignage-backups
+Environment=KEEP=14
+ExecStart=/home/signageadmin/opensignage/deploy/backup.sh
+StandardOutput=append:/home/signageadmin/opensignage-backups/backup.log
+StandardError=append:/home/signageadmin/opensignage-backups/backup.log

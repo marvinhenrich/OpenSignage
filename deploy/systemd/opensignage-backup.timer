@@ -1,0 +1,14 @@
+[Unit]
+Description=OpenSignage - Sicherung taeglich um 03:00
+# WICHTIG: NICHT auf cron umstellen. Auf dem Zielsystem (Ubuntu 26.04) ist KEIN cron
+# installiert (cron.service existiert nicht). Ein frueherer /etc/cron.d/opensignage-backup
+# wurde deshalb nie ausgefuehrt -> 33 Tage lang keine Sicherung, ohne jede Fehlermeldung.
+# systemd ist immer vorhanden; Persistent=true holt verpasste Laeufe nach einem Ausfall nach.
+
+[Timer]
+OnCalendar=*-*-* 03:00:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target
